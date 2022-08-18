@@ -16,7 +16,7 @@ import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.controls.Facing
 import com.otaliastudios.cameraview.frame.Frame
 import ru.pl.facedetector.databinding.ActivityMainBinding
-import kotlin.math.log
+import kotlin.math.*
 
 private const val TAG = "MainActivityTag"
 
@@ -121,8 +121,6 @@ class MainActivity : AppCompatActivity() {
         val result = detector.process(image)
             .addOnSuccessListener {
                 for (face in it) {
-                    //for contour
-
                     if (effect == Effect.CONTOUR) {
                         val points = face.getContour(FaceContour.FACE)?.points ?: emptyList()
                         drawFaceContour(points, facing, height, width)
@@ -150,25 +148,33 @@ class MainActivity : AppCompatActivity() {
         widthFrame: Int
     ) {
         val leftEyeX = leftEyePoints.first().x
-        val leftEyeY = rightEyePoints.first().y
+        val leftEyeY = leftEyePoints.first().y
         val rightEyeX = rightEyePoints.first().x
         val rightEyeY = rightEyePoints.first().y
 
         val betweenEyes = rightEyeX - leftEyeX
-
 
         val bitmap = Bitmap.createBitmap(heightFrame, widthFrame, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val matrix = Matrix()
         if (facing == Facing.FRONT) {
             //simple variant without dynamic scale
-            matrix.postScale(SCALE_FACTOR, SCALE_FACTOR)
-            matrix.postTranslate(-leftEyeX + TRANSLATE_FACTOR, leftEyeY - TRANSLATE_FACTOR)
-        } else {
-            matrix.postScale(betweenEyes / TRANSLATE_FACTOR, betweenEyes / TRANSLATE_FACTOR)
-            matrix.postTranslate(leftEyeX - (betweenEyes * 2.2f), leftEyeY - (betweenEyes * 2.2f))
-        }
+            matrix.postScale(0.5f, 0.5f)
+            matrix.postTranslate(-leftEyeX + SCALE_FACTOR, leftEyeY - SCALE_FACTOR)
 
+            //doesn't work for some reason
+            /*matrix.postScale(betweenEyes / SCALE_FACTOR, betweenEyes / SCALE_FACTOR)
+            matrix.postTranslate(
+                -leftEyeX + 2 * (betweenEyes * TRANSLATE_FACTOR),
+                leftEyeY - (betweenEyes * TRANSLATE_FACTOR)
+            )*/
+        } else {
+            matrix.postScale(betweenEyes / SCALE_FACTOR, betweenEyes / SCALE_FACTOR)
+            matrix.postTranslate(
+                leftEyeX - (betweenEyes * TRANSLATE_FACTOR),
+                leftEyeY - (betweenEyes * TRANSLATE_FACTOR)
+            )
+        }
         canvas.drawBitmap(bitmapSource, matrix, Paint())
 
         val flippedBitmap = Bitmap.createBitmap(
@@ -223,8 +229,8 @@ class MainActivity : AppCompatActivity() {
 
 
     companion object {
-        private const val SCALE_FACTOR = 0.5f
-        private const val TRANSLATE_FACTOR = 400
+        private const val SCALE_FACTOR = 400
+        private const val TRANSLATE_FACTOR = 2.2f
     }
 
     private enum class Effect {
