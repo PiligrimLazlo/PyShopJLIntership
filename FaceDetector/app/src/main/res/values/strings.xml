@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">FaceDetector</string>
+    <string name="switch_cam">Switch camera</string>
+    <string name="permission_did_not_granted">Permissions did not granted</string>
+    <string name="error">Error</string>
+    <string name="permissions_granted">Permissions granted</string>
+    <string name="change_effect">change effect</string>
+</resources>
